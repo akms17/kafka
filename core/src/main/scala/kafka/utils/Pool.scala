@@ -17,17 +17,16 @@
 
 package kafka.utils
 
-import java.util.ArrayList
 import java.util.concurrent._
-import collection.JavaConversions
+import scala.collection.JavaConverters._
 
 class Pool[K,V] extends Iterable[(K, V)] {
 
   private val pool = new ConcurrentHashMap[K, V]
   
-  def this(m: collection.Map[K, V]) {
+  def this(m: scala.collection.Map[K, V]) {
     this()
-    for((k,v) <- m.elements)
+    for((k,v) <- m)
       pool.put(k, v)
   }
   
@@ -41,10 +40,10 @@ class Pool[K,V] extends Iterable[(K, V)] {
   
   def remove(key: K): V = pool.remove(key)
   
-  def keys = JavaConversions.asSet(pool.keySet())
+  def keys = pool.keySet().asScala
   
   def values: Iterable[V] = 
-    JavaConversions.asIterable(new ArrayList[V](pool.values()))
+    new java.util.ArrayList[V](pool.values()).asScala
   
   def clear: Unit = pool.clear()
   

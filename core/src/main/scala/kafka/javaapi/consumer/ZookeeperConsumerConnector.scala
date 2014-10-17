@@ -19,7 +19,7 @@ package kafka.javaapi.consumer
 import kafka.message.Message
 import kafka.serializer.{DefaultDecoder, Decoder}
 import kafka.consumer._
-import scala.collection.JavaConversions.asList
+import scala.collection.JavaConverters._
 
 
 /**
@@ -71,9 +71,8 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
         topicCountMap: java.util.Map[String,java.lang.Integer],
         decoder: Decoder[T])
       : java.util.Map[String,java.util.List[KafkaStream[T]]] = {
-    import scala.collection.JavaConversions._
 
-    val scalaTopicCountMap: Map[String, Int] = Map.empty[String, Int] ++ asMap(topicCountMap.asInstanceOf[java.util.Map[String, Int]])
+    val scalaTopicCountMap = topicCountMap.asScala.toMap.asInstanceOf[Map[String, Int]]
     val scalaReturn = underlying.consume(scalaTopicCountMap, decoder)
     val ret = new java.util.HashMap[String,java.util.List[KafkaStream[T]]]
     for ((topic, streams) <- scalaReturn) {
@@ -91,7 +90,7 @@ private[kafka] class ZookeeperConsumerConnector(val config: ConsumerConfig,
     createMessageStreams(topicCountMap, new DefaultDecoder)
 
   def createMessageStreamsByFilter[T](topicFilter: TopicFilter, numStreams: Int, decoder: Decoder[T]) =
-    asList(underlying.createMessageStreamsByFilter(topicFilter, numStreams, decoder))
+    underlying.createMessageStreamsByFilter(topicFilter, numStreams, decoder).asJava
 
   def createMessageStreamsByFilter(topicFilter: TopicFilter, numStreams: Int) =
     createMessageStreamsByFilter(topicFilter, numStreams, new DefaultDecoder)
