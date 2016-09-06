@@ -114,8 +114,7 @@ object KafkaBuild extends Build {
 
 
   // POM Tweaking for core:
-  def metricsDeps =
-    <dependencies>
+  def metricsDeps =Seq(
       <dependency>
         <groupId>com.yammer.metrics</groupId>
         <artifactId>metrics-core</artifactId>
@@ -127,8 +126,7 @@ object KafkaBuild extends Build {
         <artifactId>metrics-annotations</artifactId>
         <version>3.0.0-c0c8be71</version>
         <scope>compile</scope>
-      </dependency>
-    </dependencies>
+      </dependency>)
 
   object ZkClientDepAdder extends RuleTransformer(new RewriteRule() {
     override def transform(node: Node): Seq[Node] = node match {
@@ -141,9 +139,8 @@ object KafkaBuild extends Build {
 
   object MetricsDepAdder extends RuleTransformer(new RewriteRule() {
     override def transform(node: Node): Seq[Node] = node match {
-      case Elem(prefix, "dependencies", attribs, scope, deps @ _*) => {
-        Elem(prefix, "dependencies", attribs, scope, deps ++ metricsDeps:_*)
-      }
+      case Elem(prefix, "dependencies", attribs, scope, deps @ _*) =>
+        Elem(prefix, "dependencies", attribs, scope, deps ++ metricsDeps.flatMap(_.toList) : _*)
       case other => other
     }
   })
